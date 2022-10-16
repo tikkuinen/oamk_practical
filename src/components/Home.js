@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // returns GIFs determined by a keyword
 const API_URL = 'https://api.giphy.com/v1/gifs/search';
-const API_KEY = '7utAJrHn6hAJdhyjvpUsWpRWuqmfr8Ej';
+const API_KEY = '';
 
 export default function Home() {
   const [gif, setGif] = useState('');
