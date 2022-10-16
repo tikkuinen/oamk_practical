@@ -2,73 +2,42 @@ import { useState } from 'react';
 import './App.css';
 import axios from 'axios';
 
-function App() {
-  const [trains, setTrains] = useState([]);
-  const [time, setTime] = useState([]);
-  const [station, setStation] = useState('');
-  
+const API_URL = 'https://api.giphy.com/v1/gifs/search';
+const API_KEY = '7utAJrHn6hAJdhyjvpUsWpRWuqmfr8Ej';
 
-  const API_URL = 'https://rata.digitraffic.fi/api/v1/live-trains/station/';
-  const address = API_URL + station;
-   
-  const handleData = () => {
+function App() {
+  const [gif, setGif] = useState('');
+  const [text, setText] = useState('');
+  const [found, setFound] = useState('');
+
+
+  function searchGif(e) {
+    e.preventDefault();
+    const address = API_URL + '?api_key=' + API_KEY + '&q=' + found;
+    //console.log(address);
+
     axios.get(address)
       .then((response) => {
-        //data junia, koodeja ja lähtöpäivää varten, jako käyttöliittymässä
-        //console.log(response.data)
-        setTrains(response.data);
-
-        //data aikataulua varten
-        const temp = Array();
-        const timeTables = response.data
-
-        response.data.forEach(element => {
-          //element.timeTableRows[0];
-          //pitäis pyörittää tää koko responsedata ympäri, ja kattoo jokainen juna
-          //jokaisen junan kohdalta se asema
-          
-          if (element.stationShortCode === 'TPE')
-            temp.push(element.stationShortCode);
-            console.log(temp);
-            //ei toimi
-          
-        });
-        //console.log(response.data[0].timeTableRows[0].scheduledTime);
-
-        //foreacheja ja temp taulukko, johon säilöö niitä rivejä
-    }).catch(error => {
-      console.log(error);
-      alert(error);
-    })
-  }
-
+        //console.log(response.data.data);
+        setGif(response.data.data[0].images.downsized.url);
+        setText(response.data.data[0].title);
+        //clear input after fetch
+        setFound('');
+      }).catch(error => {
+        alert(error);
+      });
+  };
+  
   return (
     <div style={{margin: 50}}>
-      <h1>Päivän junat aseman perusteella</h1>
-      <h2>Minkä aseman junat haluat?</h2>
-      {/* haetaan kaksi asiaa kerralla anonyymillä funktiolla */}
-      <select name='station' value={station} onChange={e => {setStation(e.target.value); handleData() }}>
-        <option value=''>Valitse asema</option>
-        <option value='JÄS'>Jämsä</option>
-        <option value='TPE'>Tampere</option>
-        <option value='HKI'>Helsinki</option>
-        <option value='JY'>Jyväskylä</option>
-      </select>
-      <button>Hae</button>
-          <table>
-            <tbody>
-            <tr>
-              <th>Juna</th>
-              <th>Päivä</th>
-            </tr>
-          {trains.map(item => (
-            <tr key={item.trainNumber}>
-              <td>{item.trainType} {item.trainNumber}</td>
-              <td>{item.departureDate}</td>
-            </tr>
-            ))}
-            </tbody>
-          </table>
+      <form onSubmit={searchGif}>
+        <input type="text" value={found} onChange={e => setFound(e.target.value)} />
+        <button onClick={searchGif}>Search</button>
+        <div>
+          <img src={gif} alt=''/>
+        </div>
+        <p>{text}</p>
+      </form>
     </div>
   );
 }
